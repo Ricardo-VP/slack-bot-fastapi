@@ -34,14 +34,20 @@ async def get_user(email: str) -> dict:
 
 @router.post('/msg/{user_email}')
 async def send_message_to_user(user_email: str, message: SlackMessage) -> dict:
-    user = client.users_lookupByEmail(email=user_email).data['user']
-    user_name = user['real_name']
+    try:
+        user = client.users_lookupByEmail(email=user_email).data['user']
+        user_name = user['real_name']
 
-    client.chat_postMessage(
-        channel=user['id'],
-        text=f'Hi, {user_name}. {message.text}'
-    )
+        client.chat_postMessage(
+            channel=user['id'],
+            text=f'Hi, {user_name}. {message.text}'
+        )
 
-    return {
-        'message': 'success',
-    }
+        return {
+            'status': 'success',
+        }
+    except:  # noqa: E722
+        return {
+            'status': 'error',
+            'message': 'User not found'
+        }
