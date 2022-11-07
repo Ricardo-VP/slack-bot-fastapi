@@ -1,13 +1,12 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-import slack
 
 from .config.env_manager import get_settings
+from .routers import slack
 
 env_manager = get_settings()
 
 app = FastAPI(title='Slack Bot - API')
-client = slack.WebClient(env_manager.SLACK_TOKEN)
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,3 +20,9 @@ app.add_middleware(
 @app.get('/')
 async def root():
     return {"message": "Slack Bot - API"}
+
+app.include_router(
+    slack.router,
+    prefix='/slack',
+    tags=['slack']
+)
